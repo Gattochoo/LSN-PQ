@@ -1,0 +1,130 @@
+// Copyright 2026 Kwanghoo Choo
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use std::{fs, path::PathBuf, process::Command};
+
+fn validate_bin() -> &'static str {
+    env!("CARGO_BIN_EXE_polar-validate")
+}
+
+fn temp_fixture_path(name: &str) -> PathBuf {
+    let mut path = std::env::temp_dir();
+    path.push(format!("polar_validate_{name}_{}.json", std::process::id()));
+    path
+}
+
+fn repo_fixture_path(relative: &str) -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+.join("..")
+.join("..")
+.join(relative)
+}
+
+fn fixed_i64_baseline_args() -> [&'static str; 8] {
+    [
+        "--decoder",
+        "fixed-i64",
+        "--suite",
+        "baseline",
+        "--trials",
+        "1",
+        "--seed",
+        "5397",
+    ]
+}
+
+fn fixed_i64_n2048_smoke_args() -> [&'static str; 8] {
+    [
+        "--decoder",
+        "fixed-i64",
+        "--suite",
+        "n2048",
+        "--trials",
+        "1",
+        "--seed",
+        "5397",
+    ]
+}
+
+#[test]
+fn cli_writes_fixed_i64_baseline_fixture() {
+    let path = temp_fixture_path("fixed_i64");
+
+    let output = Command::new(validate_bin())
+.args(fixed_i64_baseline_args())
+.args(["--output"])
+.arg(&path)
+.output()
+.expect("failed to run polar-validate fixed-i64 generator");
+
+    assert!(
+        output.status.success(),
+        "fixed-i64 generator failed: stdout={} stderr={}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+);
+
+    let json = fs::read_to_string(&path).expect("failed to read fixed-i64 fixture");
+    assert!(json.contains("\"experiment\": \"-p1-rust-scl-fixed-i64-l8-baseline\""));
+    assert!(json.contains("\"decoder\": \"scl_l8_fixed_i64_metric_scale_1024\""));
+    assert!(json.contains("\"production_constant_time_claim\": false"));
+    assert!(json.contains("no reduction claim"));
+    assert!(json.contains("no security claim"));
+    assert!(json.contains("\"N\": 128"));
+    assert!(json.contains("\"N\": 512"));
+
+    let _ = fs::remove_file(path);
+}
+
+#[test]
+fn cli_check_accepts_repo_fixed_i64_n2048_fixture() {
+    let fixture = repo_fixture_path("experiments/188--polar-rust-fixed-i64-n2048-smoke.json");
+    let output = Command::new(validate_bin())
+.args(fixed_i64_n2048_smoke_args())
+.args(["--check"])
+.arg(&fixture)
+.output()
+.expect("failed to run polar-validate fixed-i64 n2048 checker");
+
+    assert!(
+        output.status.success(),
+        "fixed-i64 n2048 check failed: stdout={} stderr={}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+);
+}
+
+#[test]
+fn cli_check_accepts_matching_fixed_i64_fixture() {
+    let path = temp_fixture_path("fixed_i64_check");
+
+    let generate_status = Command::new(validate_bin())
+.args(fixed_i64_baseline_args())
+.args(["--output"])
+.arg(&path)
+.status()
+.expect("failed to run polar-validate fixed-i64 generator");
+    assert!(generate_status.success());
+
+    let check_status = Command::new(validate_bin())
+.args(fixed_i64_baseline_args())
+.args(["--check"])
+.arg(&path)
+.status()
+.expect("failed to run polar-validate fixed-i64 checker");
+    assert!(check_status.success());
+
+    let _ = fs::remove_file(path);
+}

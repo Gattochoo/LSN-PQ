@@ -1,0 +1,30 @@
+{
+  "title": "The Lagrangian Subspace Noise (LSN) Problem: papers, proofs, experiments, and implementations",
+  "description": "Research archive for the Lagrangian Subspace Noise (LSN) problem, a variant of Learning Parity with Noise whose secret is a Lagrangian subspace of a symplectic vector space over F2. Contents: (1) the core mathematical paper 'Lagrangian Subspace Noise: Exact Statistical-Query Lower Bounds and the Linear-Reduction Landscape' (paper/lsn-core.pdf) -- exact pairwise-correlation formula, unconditional and conditional Statistical Query lower bounds, exact closed-form moment theorems for the isotropic row ensemble (with full proofs), and a near-complete impossibility landscape for linear reductions from symplectic LPN to standard LPN; (2) a companion constructions paper 'Lagrangian Subspace Noise: Cryptographic Constructions' (paper/lsn-paper.pdf) developing a succinct argument (LSN-SNARK) via the Siegel-chart representation (a key-encapsulation mechanism is left to future work), building on and citing the core paper for the hardness analysis; (3) reproducible experiments with exact-fraction data (experiments/) and Rust implementations with known-answer tests (impl/). Every claim is classified as a proved theorem, explicitly labeled empirical evidence, or an explicitly labeled conjecture. Papers and documentation are licensed CC BY 4.0; code is licensed Apache-2.0. Large-language-model assistants were used in the preparation of this work, as disclosed in the papers; the author takes full responsibility for the content.",
+  "creators": [
+    {
+      "name": "Choo, Kwanghoo",
+      "orcid": "0009-0005-5682-8098"
+    }
+  ],
+  "license": "cc-by-4.0",
+  "upload_type": "publication",
+  "publication_type": "preprint",
+  "keywords": [
+    "post-quantum cryptography",
+    "Learning Parity with Noise",
+    "statistical query model",
+    "symplectic geometry",
+    "Lagrangian Grassmannian",
+    "lower bounds",
+    "black-box reductions",
+    "lattice-free assumptions"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "https://github.com/Gattochoo/LSN-PQ",
+      "resource_type": "software"
+    }
+  ]
+}
