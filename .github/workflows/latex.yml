@@ -1,0 +1,46 @@
+# Copyright 2026 Kwanghoo Choo
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: LaTeX
+
+# NOTE (2026-06-13): GitHub Actions usage exhausted until 2026-06-26; CI builds
+# fail with "All jobs have failed". Disabled push/PR triggers until then to stop
+# failure emails — the paper is built locally with tectonic and the PDF is
+# committed, so CI is redundant in the meantime. RESTORE push/pull_request
+# triggers after 2026-06-26 (uncomment the two blocks below).
+on:
+  # push:
+  #   branches: [main]
+  # pull_request:
+  #   branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-latex:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: teatimeguest/setup-tectonic@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build LSN paper
+        run: |
+          cd paper
+          tectonic lsn-paper.tex
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lsn-paper-pdf
+          path: paper/lsn-paper.pdf
